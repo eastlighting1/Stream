@@ -1,0 +1,52 @@
+name: checks
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Sync development dependencies
+        run: uv sync --frozen --extra dev
+
+      - name: Run Ruff
+        run: uv run ruff check .
+
+      - name: Run MyPy
+        run: uv run mypy
+
+      - name: Run pytest
+        run: uv run pytest -q
+
+      - name: Run example
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir -p tmp_example_run
+          cd tmp_example_run
+          uv run python ../examples/basic_usage.py
+
+      - name: Build package artifacts
+        run: uv run --with build python -m build
+
+      - name: Run dependency audit
+        run: uv run --with pip-audit pip-audit
+
+      - name: Run policy checks
+        run: uv run python scripts/policy_checks.py

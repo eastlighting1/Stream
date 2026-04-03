@@ -1,0 +1,86 @@
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "stream"
+version = "0.1.0"
+description = "Append-oriented canonical record store for the ML observability stack."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+authors = [{ name = "MLObservability" }]
+keywords = [
+    "ml-observability",
+    "observability",
+    "append-only",
+    "jsonl",
+    "event-store",
+    "replay",
+    "integrity",
+    "repair",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: Other/Proprietary License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Logging",
+]
+dependencies = ["spine>=0.1.0"]
+
+[project.urls]
+Documentation = "docs/USER_GUIDE.en.md"
+English-Guide = "docs/USER_GUIDE.en.md"
+Korean-Guide = "docs/USER_GUIDE.ko.md"
+Getting-Started = "docs/en/getting-started.md"
+API-Reference = "docs/en/api-reference.md"
+CLI-Reference = "docs/en/cli-reference.md"
+Examples = "docs/en/examples.md"
+Source = "."
+
+[project.optional-dependencies]
+dev = [
+    "build>=1.2.2",
+    "mypy>=1.15.0",
+    "pip-audit>=2.8.0",
+    "pytest>=8.3.0",
+    "ruff>=0.11.0",
+]
+
+[project.scripts]
+stream-cli = "stream.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/stream"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/README.md", "/pyproject.toml", "/src/stream", "/tests", "/examples", "/docs"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+packages = ["stream"]
+
+[[tool.mypy.overrides]]
+module = ["spine.api", "spine.models", "spine.serialization", "spine.validation", "spine.*"]
+ignore_missing_imports = true
+disable_error_code = ["import-untyped"]
+
+[tool.uv.sources]
+spine = { path = "../Spine", editable = true }
