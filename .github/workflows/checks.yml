@@ -10,10 +10,21 @@ on:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    env:
+      UV_PYTHON: "3.11"
 
     steps:
-      - name: Checkout repository
+      - name: Check out Stream
         uses: actions/checkout@v4
+
+      - name: Check out Spine
+        uses: actions/checkout@v4
+        with:
+          repository: eastlighting1/Spine
+          path: Spine
+
+      - name: Prepare sibling Spine path
+        run: ln -s "$GITHUB_WORKSPACE/Spine" ../Spine
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -24,7 +35,7 @@ jobs:
         uses: astral-sh/setup-uv@v6
 
       - name: Sync development dependencies
-        run: uv sync --frozen --extra dev
+        run: uv sync --locked --extra dev
 
       - name: Run Ruff
         run: uv run ruff check .
