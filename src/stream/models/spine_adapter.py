@@ -12,6 +12,8 @@ from spine.api import (
 from spine.models import MetricRecord, StructuredEventRecord, TraceSpanRecord
 from spine.serialization.canonical import to_payload
 
+from ..exceptions import RecordValidationError
+
 
 def is_supported_spine_record(record: object) -> bool:
     return isinstance(record, (StructuredEventRecord, MetricRecord, TraceSpanRecord))
@@ -34,12 +36,11 @@ def _raise_on_validation(report: Any) -> None:
 
 
 def _normalize_spine_record(record: object, validator: Any) -> dict[str, Any]:
-    payload = _flatten_spine_record(to_payload(record))
     try:
         _raise_on_validation(validator(record))
-    except Exception:
-        return payload
-    return payload
+    except Exception as exc:
+        raise RecordValidationError(str(exc)) from exc
+    return _flatten_spine_record(to_payload(record))
 
 
 def _flatten_spine_record(payload: dict[str, Any]) -> dict[str, Any]:

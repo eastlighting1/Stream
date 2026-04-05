@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -45,10 +46,11 @@ class LayoutManager:
             raise LayoutError("manifest.json is not valid JSON") from exc
 
     def save_manifest(self, manifest: dict[str, Any]) -> None:
-        self._manifest_path.write_text(
-            json.dumps(manifest, indent=2, sort_keys=True),
-            encoding="utf-8",
-        )
+        content = json.dumps(manifest, indent=2, sort_keys=True)
+        with self._manifest_path.open("w", encoding="utf-8") as fh:
+            fh.write(content)
+            fh.flush()
+            os.fsync(fh.fileno())
 
     def begin_append(self) -> AppendSlot:
         manifest = self.load_manifest()

@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from spine.models import CorrelationRefs, MetricPayload, MetricRecord, RecordEnvelope
+from spine.models import CorrelationRefs, MetricPayload, MetricRecord, RecordEnvelope, StableRef
 
 from stream import IntegrityState, ReplayError, ReplayMode, ScanFilter, StoreConfig, StreamStore
 
@@ -87,15 +87,15 @@ def test_replay_spine_record_objects(tmp_path: Path) -> None:
     store = StreamStore.open(StoreConfig(root_path=tmp_path / "store"))
     record = MetricRecord(
         envelope=RecordEnvelope(
-            record_ref="record/train-step-1",
+            record_ref=StableRef(kind="record", value="train-step-1"),
             record_type="metric",
             recorded_at="2026-04-03T00:00:01Z",
             observed_at="2026-04-03T00:00:01Z",
             producer_ref="scribe.python.local",
-            run_ref="run/train-1",
-            stage_execution_ref="stage/train",
-            operation_context_ref="op/train-step-1",
-            correlation_refs=CorrelationRefs(trace_id="trace/train-1"),
+            run_ref=StableRef(kind="run", value="train-1"),
+            stage_execution_ref=StableRef(kind="stage", value="train"),
+            operation_context_ref=StableRef(kind="op", value="train-step-1"),
+            correlation_refs=CorrelationRefs(trace_id="trace-train-1"),
         ),
         payload=MetricPayload(
             metric_key="training.loss",
